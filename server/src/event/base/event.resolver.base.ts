@@ -15,10 +15,10 @@ import * as apollo from "apollo-server-express";
 import * as nestAccessControl from "nest-access-control";
 import { GqlDefaultAuthGuard } from "../../auth/gqlDefaultAuth.guard";
 import * as gqlACGuard from "../../auth/gqlAC.guard";
-import * as gqlUserRoles from "../../auth/gqlUserRoles.decorator";
-import * as abacUtil from "../../auth/abac.util";
 import { isRecordNotFoundError } from "../../prisma.util";
 import { MetaQueryPayload } from "../../util/MetaQueryPayload";
+import { AclFilterResponseInterceptor } from "../../interceptors/aclFilterResponse.interceptor";
+import { AclValidateRequestInterceptor } from "../../interceptors/aclValidateRequest.interceptor";
 import { CreateEventArgs } from "./CreateEventArgs";
 import { UpdateEventArgs } from "./UpdateEventArgs";
 import { DeleteEventArgs } from "./DeleteEventArgs";
@@ -55,26 +55,18 @@ export class EventResolverBase {
     };
   }
 
+  @common.UseInterceptors(AclFilterResponseInterceptor)
   @graphql.Query(() => [Event])
   @nestAccessControl.UseRoles({
     resource: "Event",
     action: "read",
     possession: "any",
   })
-  async events(
-    @graphql.Args() args: EventFindManyArgs,
-    @gqlUserRoles.UserRoles() userRoles: string[]
-  ): Promise<Event[]> {
-    const permission = this.rolesBuilder.permission({
-      role: userRoles,
-      action: "read",
-      possession: "any",
-      resource: "Event",
-    });
-    const results = await this.service.findMany(args);
-    return results.map((result) => permission.filter(result));
+  async events(@graphql.Args() args: EventFindManyArgs): Promise<Event[]> {
+    return this.service.findMany(args);
   }
 
+  @common.UseInterceptors(AclFilterResponseInterceptor)
   @graphql.Query(() => Event, { nullable: true })
   @nestAccessControl.UseRoles({
     resource: "Event",
@@ -82,54 +74,23 @@ export class EventResolverBase {
     possession: "own",
   })
   async event(
-    @graphql.Args() args: EventFindUniqueArgs,
-    @gqlUserRoles.UserRoles() userRoles: string[]
+    @graphql.Args() args: EventFindUniqueArgs
   ): Promise<Event | null> {
-    const permission = this.rolesBuilder.permission({
-      role: userRoles,
-      action: "read",
-      possession: "own",
-      resource: "Event",
-    });
     const result = await this.service.findOne(args);
     if (result === null) {
       return null;
     }
-    return permission.filter(result);
+    return result;
   }
 
+  @common.UseInterceptors(AclValidateRequestInterceptor)
   @graphql.Mutation(() => Event)
   @nestAccessControl.UseRoles({
     resource: "Event",
     action: "create",
     possession: "any",
   })
-  async createEvent(
-    @graphql.Args() args: CreateEventArgs,
-    @gqlUserRoles.UserRoles() userRoles: string[]
-  ): Promise<Event> {
-    const permission = this.rolesBuilder.permission({
-      role: userRoles,
-      action: "create",
-      possession: "any",
-      resource: "Event",
-    });
-    const invalidAttributes = abacUtil.getInvalidAttributes(
-      permission,
-      args.data
-    );
-    if (invalidAttributes.length) {
-      const properties = invalidAttributes
-        .map((attribute: string) => JSON.stringify(attribute))
-        .join(", ");
-      const roles = userRoles
-        .map((role: string) => JSON.stringify(role))
-        .join(",");
-      throw new apollo.ApolloError(
-        `providing the properties: ${properties} on ${"Event"} creation is forbidden for roles: ${roles}`
-      );
-    }
-    // @ts-ignore
+  async createEvent(@graphql.Args() args: CreateEventArgs): Promise<Event> {
     return await this.service.create({
       ...args,
       data: {
@@ -144,6 +105,7 @@ export class EventResolverBase {
     });
   }
 
+  @common.UseInterceptors(AclValidateRequestInterceptor)
   @graphql.Mutation(() => Event)
   @nestAccessControl.UseRoles({
     resource: "Event",
@@ -151,32 +113,9 @@ export class EventResolverBase {
     possession: "any",
   })
   async updateEvent(
-    @graphql.Args() args: UpdateEventArgs,
-    @gqlUserRoles.UserRoles() userRoles: string[]
+    @graphql.Args() args: UpdateEventArgs
   ): Promise<Event | null> {
-    const permission = this.rolesBuilder.permission({
-      role: userRoles,
-      action: "update",
-      possession: "any",
-      resource: "Event",
-    });
-    const invalidAttributes = abacUtil.getInvalidAttributes(
-      permission,
-      args.data
-    );
-    if (invalidAttributes.length) {
-      const properties = invalidAttributes
-        .map((attribute: string) => JSON.stringify(attribute))
-        .join(", ");
-      const roles = userRoles
-        .map((role: string) => JSON.stringify(role))
-        .join(",");
-      throw new apollo.ApolloError(
-        `providing the properties: ${properties} on ${"Event"} update is forbidden for roles: ${roles}`
-      );
-    }
     try {
-      // @ts-ignore
       return await this.service.update({
         ...args,
         data: {
@@ -209,7 +148,6 @@ export class EventResolverBase {
     @graphql.Args() args: DeleteEventArgs
   ): Promise<Event | null> {
     try {
-      // @ts-ignore
       return await this.service.delete(args);
     } catch (error) {
       if (isRecordNotFoundError(error)) {
@@ -221,27 +159,19 @@ export class EventResolverBase {
     }
   }
 
+  @common.UseInterceptors(AclFilterResponseInterceptor)
   @graphql.ResolveField(() => Customer, { nullable: true })
   @nestAccessControl.UseRoles({
-    resource: "Event",
+    resource: "Customer",
     action: "read",
     possession: "any",
   })
-  async customer(
-    @graphql.Parent() parent: Event,
-    @gqlUserRoles.UserRoles() userRoles: string[]
-  ): Promise<Customer | null> {
-    const permission = this.rolesBuilder.permission({
-      role: userRoles,
-      action: "read",
-      possession: "any",
-      resource: "Customer",
-    });
+  async customer(@graphql.Parent() parent: Event): Promise<Customer | null> {
     const result = await this.service.getCustomer(parent.id);
 
     if (!result) {
       return null;
     }
-    return permission.filter(result);
+    return result;
   }
 }
