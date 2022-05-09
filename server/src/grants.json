@@ -32,12 +32,6 @@
   {
     "role": "user",
     "resource": "Customer",
-    "action": "read:own",
-    "attributes": "*"
-  },
-  {
-    "role": "user",
-    "resource": "Customer",
     "action": "create:any",
     "attributes": "*"
   },
@@ -51,12 +45,6 @@
     "role": "user",
     "resource": "Customer",
     "action": "delete:any",
-    "attributes": "*"
-  },
-  {
-    "role": "user",
-    "resource": "Customer",
-    "action": "read:any",
     "attributes": "*"
   },
   {

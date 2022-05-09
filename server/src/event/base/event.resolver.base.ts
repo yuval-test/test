@@ -19,6 +19,7 @@ import { isRecordNotFoundError } from "../../prisma.util";
 import { MetaQueryPayload } from "../../util/MetaQueryPayload";
 import { AclFilterResponseInterceptor } from "../../interceptors/aclFilterResponse.interceptor";
 import { AclValidateRequestInterceptor } from "../../interceptors/aclValidateRequest.interceptor";
+import { Public } from "../../decorators/public.decorator";
 import { CreateEventArgs } from "./CreateEventArgs";
 import { UpdateEventArgs } from "./UpdateEventArgs";
 import { DeleteEventArgs } from "./DeleteEventArgs";
@@ -159,13 +160,8 @@ export class EventResolverBase {
     }
   }
 
-  @common.UseInterceptors(AclFilterResponseInterceptor)
+  @Public()
   @graphql.ResolveField(() => Customer, { nullable: true })
-  @nestAccessControl.UseRoles({
-    resource: "Customer",
-    action: "read",
-    possession: "any",
-  })
   async customer(@graphql.Parent() parent: Event): Promise<Customer | null> {
     const result = await this.service.getCustomer(parent.id);
 
