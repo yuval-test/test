@@ -90,7 +90,7 @@ export class UserResolverBase {
   @graphql.Query(() => Number)
   async Custom(
     @graphql.Args()
-    args: string
+    args: InputJsonValue
   ): Promise<number> {
     return this.service.Custom(args);
   }

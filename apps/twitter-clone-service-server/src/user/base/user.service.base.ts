@@ -44,7 +44,7 @@ export class UserServiceBase {
   ): Promise<PrismaUser> {
     return this.prisma.user.delete(args);
   }
-  async Custom(args: string): Promise<number> {
+  async Custom(args: InputJsonValue): Promise<number> {
     throw new Error("Not implemented");
   }
   async Custom2(args: string): Promise<string> {
