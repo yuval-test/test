@@ -22,6 +22,7 @@ import { User } from "./User";
 import { UserFindManyArgs } from "./UserFindManyArgs";
 import { UserWhereUniqueInput } from "./UserWhereUniqueInput";
 import { UserUpdateInput } from "./UserUpdateInput";
+import { CustomDto } from "../CustomDto";
 
 export class UserControllerBase {
   constructor(protected readonly service: UserService) {}
@@ -160,7 +161,7 @@ export class UserControllerBase {
 
   @common.Get("/:id/custom")
   @swagger.ApiOkResponse({
-    type: Number,
+    type: CustomDto,
   })
   @swagger.ApiNotFoundResponse({
     type: errors.NotFoundException,
@@ -171,7 +172,7 @@ export class UserControllerBase {
   async Custom(
     @common.Body()
     body: number
-  ): Promise<number> {
+  ): Promise<CustomDto> {
     return this.service.Custom(body);
   }
 }

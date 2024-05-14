@@ -20,6 +20,7 @@ import { UserFindUniqueArgs } from "./UserFindUniqueArgs";
 import { CreateUserArgs } from "./CreateUserArgs";
 import { UpdateUserArgs } from "./UpdateUserArgs";
 import { DeleteUserArgs } from "./DeleteUserArgs";
+import { CustomDto } from "../CustomDto";
 import { UserService } from "../user.service";
 @graphql.Resolver(() => User)
 export class UserResolverBase {
@@ -87,11 +88,11 @@ export class UserResolverBase {
     }
   }
 
-  @graphql.Query(() => Number)
+  @graphql.Query(() => CustomDto)
   async Custom(
     @graphql.Args()
     args: number
-  ): Promise<number> {
+  ): Promise<CustomDto> {
     return this.service.Custom(args);
   }
 }
