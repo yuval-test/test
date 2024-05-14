@@ -170,25 +170,8 @@ export class UserControllerBase {
   })
   async Custom(
     @common.Body()
-    body: string
+    body: number
   ): Promise<number> {
     return this.service.Custom(body);
-  }
-
-  @common.Get("/:id/custom-2")
-  @swagger.ApiOkResponse({
-    type: String,
-  })
-  @swagger.ApiNotFoundResponse({
-    type: errors.NotFoundException,
-  })
-  @swagger.ApiForbiddenResponse({
-    type: errors.ForbiddenException,
-  })
-  async Custom2(
-    @common.Body()
-    body: string
-  ): Promise<string> {
-    return this.service.Custom2(body);
   }
 }
