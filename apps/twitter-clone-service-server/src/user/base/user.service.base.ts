@@ -11,6 +11,7 @@ https://docs.amplication.com/how-to/custom-code
   */
 import { PrismaService } from "../../prisma/prisma.service";
 import { Prisma, User as PrismaUser } from "@prisma/client";
+import { CustomDto } from "../CustomDto";
 
 export class UserServiceBase {
   constructor(protected readonly prisma: PrismaService) {}
@@ -44,10 +45,7 @@ export class UserServiceBase {
   ): Promise<PrismaUser> {
     return this.prisma.user.delete(args);
   }
-  async Custom(args: InputJsonValue): Promise<number> {
-    throw new Error("Not implemented");
-  }
-  async Custom2(args: string): Promise<string> {
+  async Custom(args: number): Promise<CustomDto> {
     throw new Error("Not implemented");
   }
 }
