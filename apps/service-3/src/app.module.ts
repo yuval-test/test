@@ -2,6 +2,7 @@ import { RedisModule } from "./redis/redis.module";
 import { Module } from "@nestjs/common";
 import { CacheModule } from "@nestjs/cache-manager";
 import { redisStore } from "cache-manager-ioredis-yet";
+import { CustomerModule } from "./customer/customer.module";
 import { HealthModule } from "./health/health.module";
 import { PrismaModule } from "./prisma/prisma.module";
 import { SecretsManagerModule } from "./providers/secrets/secretsManager.module";
@@ -11,9 +12,13 @@ import { ConfigModule, ConfigService } from "@nestjs/config";
 import { GraphQLModule } from "@nestjs/graphql";
 import { ApolloDriver, ApolloDriverConfig } from "@nestjs/apollo";
 
+import { LoggerModule } from "./logger/logger.module";
+
 @Module({
   controllers: [],
   imports: [
+    LoggerModule,
+    CustomerModule,
     HealthModule,
     PrismaModule,
     SecretsManagerModule,
